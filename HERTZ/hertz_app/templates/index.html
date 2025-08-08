@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8" />
+    <title>Hertz Freerider Rutt-sök</title>
+</head>
+<body>
+    <h1>Hitta rutter</h1>
+
+    <form method="post">
+        <label>Startplats:</label><br />
+        <input type="text" name="start_place" required /><br /><br />
+
+        <label>Slutplats:</label><br />
+        <input type="text" name="end_place" required /><br /><br />
+
+        <button type="submit">Sök rutter</button>
+    </form>
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    {% if routes %}
+        <h2>Hittade rutter:</h2>
+        <ul>
+        {% for route in routes %}
+            <li>{{ route | join(" → ") }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>
