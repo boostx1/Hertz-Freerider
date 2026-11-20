@@ -8,7 +8,7 @@ def fetch_routes():
     if response.status_code == 200:
         return response.json()
     else:
-        print("Fel vid hämtning routes:", response.status_code)
+        print("Could not retrieve routes:", response.status_code)
         return []
 
 def build_route_maps(routes_data):

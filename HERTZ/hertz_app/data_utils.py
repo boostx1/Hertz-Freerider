@@ -23,7 +23,6 @@ def build_graph(routes):
         end = route.get("returnLocationName")
         if start and end:
             graph.setdefault(start, set()).add(end)
-    # Sätt om till listor för lättare hantering
     for k in graph:
         graph[k] = list(graph[k])
     return graph

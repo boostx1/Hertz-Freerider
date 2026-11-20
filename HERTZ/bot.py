@@ -16,23 +16,19 @@ from telegram.ext import (
 
 from google.generativeai import client as genai
 
-# === Hårdkodade API-nycklar ===
-TELEGRAM_TOKEN = "7393040190:AAG7rh1t_2KXMFWOp0rJYbrXwUqyY-mSuJc"
-GENAI_API_KEY = "AIzaSyDBAoHhiWFDznyrLYspgvty53xdKrmY-Fs"
+TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
 
-# === Initiera Google AI klient ===
+GENAI_API_KEY = os.environ["GENAI_API_KEY"]
+
 genai.configure(api_key=GENAI_API_KEY)
 
-# === Globala variabler ===
 user_state = defaultdict(dict)
 locations = []
 routes = []
 from_routes = {}
 
-# === Steg för conversation handler ===
 START, END = range(2)
 
-# === API-hämtning ===
 def fetch_locations():
     url = "https://www.hertzfreerider.se/api/locations/"
     headers = {"User-Agent": "Mozilla/5.0", "Accept": "application/json"}
@@ -82,17 +78,15 @@ def find_routes(start, end, from_routes, max_depth=4):
 
     return all_routes
 
-# === Telegram handlers ===
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global locations, routes, from_routes
-    # Hämta data när boten startar
     locations = fetch_locations()
     routes = fetch_routes()
     from_routes = build_route_map(routes)
 
     await update.message.reply_text(
-        "Hej! 👋 Jag hjälper dig hitta en Hertz Freerider-rutt.\n"
-        "Skriv vilken stad du vill starta i."
+        "Welcome! I can help you find a Hertz Freerider route.\n"
+        "Enter your departure city."
     )
     return START
 
@@ -101,11 +95,11 @@ async def get_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     location_names = [r.get("pickupLocationName", "") for r in routes]
     matched = fuzzy_match_location(user_input, location_names)
     if not matched:
-        await update.message.reply_text("Hittade inte startplats. Försök igen.")
+        await update.message.reply_text("Departure location not found. Try again.")
         return START
 
     user_state[update.effective_user.id]['start'] = matched
-    await update.message.reply_text(f"Startplats satt till: {matched}\nNu, vilken stad vill du åka till?")
+    await update.message.reply_text(f"Departure location: {matched}\nWhich city would you like to travel to?")
     return END
 
 async def get_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -113,7 +107,7 @@ async def get_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
     location_names = [r.get("returnLocationName", "") for r in routes]
     matched = fuzzy_match_location(user_input, location_names)
     if not matched:
-        await update.message.reply_text("Hittade inte slutplats. Försök igen.")
+        await update.message.reply_text("Destination not found. Try again.")
         return END
 
     user_id = update.effective_user.id
@@ -122,20 +116,19 @@ async def get_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     possible_routes = find_routes(start, end, from_routes, max_depth=4)
     if possible_routes:
-        response = f"✅ Hittade {len(possible_routes)} rutter:\n"
-        for i, rutt in enumerate(possible_routes[:5], 1):
-            response += f"{i}: {' → '.join(rutt)}\n"
+        response = f"✅ Found {len(possible_routes)} routes:\n"
+        for i, route in enumerate(possible_routes[:5], 1):
+            response += f"{i}: {' → '.join(route)}\n"
     else:
-        response = "❌ Ingen rutt hittades."
+        response = "❌ No route found."
 
     await update.message.reply_text(response)
     return ConversationHandler.END
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Avbrutet.")
+    await update.message.reply_text("Cancelled.")
     return ConversationHandler.END
 
-# === Main function ===
 async def main():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
@@ -166,5 +159,3 @@ if __name__ == "__main__":
             loop.run_until_complete(main())
         else:
             raise
-
-

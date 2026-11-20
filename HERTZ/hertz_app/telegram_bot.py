@@ -8,20 +8,15 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 app_openai = OpenAI(api_key=OPENAI_API_KEY)
 
 async def start(update, context):
-    await update.message.reply_text("Hej! Skicka 'startstad - slutstad' för att få rutt.")
+    await update.message.reply_text("Enter your trip as 'departure city - destination city'.")
 
 async def handle_message(update, context):
     text = update.message.text
     if '-' in text:
         start, end = map(str.strip, text.split('-', 1))
-        # Här ska du anropa bfs_find_routes och formatera svaret
-        # Än så länge hardcodad test
-        await update.message.reply_text(f"Söker rutt från {start} till {end} ...")
-        # Exempel, ersätt med riktig anrop
-        # routes = bfs_find_routes(graph, start, end)
-        # Skriv ut första rutten etc
+        await update.message.reply_text(f"Searching for routes from {start} to {end} ...")
     else:
-        await update.message.reply_text("Skriv i format: startstad - slutstad")
+        await update.message.reply_text("Enter your trip as departure city - destination city.")
 
 def main():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()

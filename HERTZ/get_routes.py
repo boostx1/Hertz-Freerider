@@ -2,7 +2,6 @@ import requests
 from collections import defaultdict, deque
 import heapq
 
-# ======================== API HÄMTNING ========================
 def fetch_locations():
     url = "https://www.hertzfreerider.se/api/locations/"
     headers = {"User-Agent": "Mozilla/5.0", "Accept": "application/json"}
@@ -10,7 +9,7 @@ def fetch_locations():
     if response.status_code == 200:
         return response.json()
     else:
-        print("Fel vid hämtning locations:", response.status_code)
+        print("Could not retrieve locations:", response.status_code)
         return []
 
 def fetch_routes():
@@ -20,12 +19,11 @@ def fetch_routes():
     if response.status_code == 200:
         return response.json()
     else:
-        print("Fel vid hämtning routes:", response.status_code)
+        print("Could not retrieve routes:", response.status_code)
         return []
 
-# ======================== BYGG GRAF MED DISTANS ========================
 def build_graph_with_distance(routes_data):
-    graph = defaultdict(list)  # start: list av (destination, distans)
+    graph = defaultdict(list)  # Neighbors and edge distances
     for loc in routes_data:
         start = loc.get("pickupLocationName")
         end = loc.get("returnLocationName")
@@ -34,18 +32,16 @@ def build_graph_with_distance(routes_data):
             graph[start].append( (end, distance) )
     return graph
 
-# ======================== SKRIV UT GRAFEN ========================
 def print_graph(graph):
-    print("Graf (plats → [destination (distans)])")
+    print("Graph (location → [destination (distance)])")
     for start, edges in graph.items():
         print(f"{start}:")
         for (dest, dist) in edges:
             print(f"  → {dest} ({dist} km)")
     print("\n")
 
-# ======================== DIJKSTRA ALGORITM FÖR KORTASTE VÄG ========================
 def dijkstra(graph, start, end):
-    queue = [(0, start, [start])]  # (kostnad, nod, väg)
+    queue = [(0, start, [start])]  # (cost, node, path)
     visited = set()
 
     while queue:
@@ -63,41 +59,40 @@ def dijkstra(graph, start, end):
 
     return None, float('inf')
 
-# ======================== HUVUDFUNKTION ========================
 def main():
-    print("Hämtar locations...")
+    print("Retrieving locations...")
     locations = fetch_locations()
     if not locations:
-        print("Inga locations tillgängliga.")
+        print("No locations available.")
         return
 
-    print("Hämtar rutter...")
+    print("Retrieving routes...")
     routes = fetch_routes()
     if not routes:
-        print("Inga rutter tillgängliga.")
+        print("No routes available.")
         return
 
-    print("Bygger graf med distanser...")
+    print("Building the distance graph...")
     graph = build_graph_with_distance(routes)
 
     print_graph(graph)
 
-    start_place = input("Ange exakt startplats (pickupLocationName): ").strip()
-    end_place = input("Ange exakt slutplats (returnLocationName): ").strip()
+    start_place = input("Enter the exact pickup location (pickupLocationName): ").strip()
+    end_place = input("Enter the exact return location (returnLocationName): ").strip()
 
     if not start_place or not end_place:
-        print("Du måste ange både start och slutplats.")
+        print("Enter both a pickup location and a destination.")
         return
 
-    print(f"\nSöker kortaste rutt från '{start_place}' till '{end_place}'...")
+    print(f"\nFinding the shortest route from '{start_place}' to '{end_place}'...")
 
     path, cost = dijkstra(graph, start_place, end_place)
 
     if path:
-        print(f"Kortaste rutt (totalt {cost:.1f} km):")
+        print(f"Shortest route (total {cost:.1f} km):")
         print(" → ".join(path))
     else:
-        print(f"Ingen rutt hittad mellan {start_place} och {end_place}.")
+        print(f"No route found between {start_place} and {end_place}.")
 
 if __name__ == "__main__":
     main()

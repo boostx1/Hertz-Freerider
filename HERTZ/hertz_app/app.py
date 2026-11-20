@@ -13,18 +13,18 @@ def setup():
 
 HTML_TEMPLATE = '''
 <!doctype html>
-<title>Hertz Freerider Ruttoptimering</title>
-<h1>Sök rutt</h1>
+<title>Hertz Freerider Route Planner</title>
+<h1>Find a route</h1>
 <form method="post">
   Start: <input name="start" required><br>
-  Slut: <input name="end" required><br>
-  <button type="submit">Sök</button>
+  Destination: <input name="end" required><br>
+  <button type="submit">Search</button>
 </form>
 {% if routes %}
-  <h2>Rutter hittade:</h2>
+  <h2>Available routes</h2>
   <ul>
-  {% for rutt in routes %}
-    <li>{{ rutt | join(" → ") }}</li>
+  {% for route in routes %}
+    <li>{{ route | join(" → ") }}</li>
   {% endfor %}
   </ul>
 {% endif %}

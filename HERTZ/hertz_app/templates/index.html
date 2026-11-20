@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Hertz Freerider Rutt-sök</title>
+    <title>Hertz Freerider Route Search</title>
 </head>
 <body>
-    <h1>Hitta rutter</h1>
+    <h1>Find routes</h1>
 
     <form method="post">
-        <label>Startplats:</label><br />
+        <label>Pickup location:</label><br />
         <input type="text" name="start_place" required /><br /><br />
 
-        <label>Slutplats:</label><br />
+        <label>Destination:</label><br />
         <input type="text" name="end_place" required /><br /><br />
 
-        <button type="submit">Sök rutter</button>
+        <button type="submit">Find routes</button>
     </form>
 
     {% if error %}
@@ -22,7 +22,7 @@
     {% endif %}
 
     {% if routes %}
-        <h2>Hittade rutter:</h2>
+        <h2>Available routes</h2>
         <ul>
         {% for route in routes %}
             <li>{{ route | join(" → ") }}</li>

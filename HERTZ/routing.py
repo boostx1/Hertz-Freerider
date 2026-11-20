@@ -37,6 +37,6 @@ def get_routes_for_bot(start, end):
         if path:
             return " → ".join(path)
         else:
-            return "Ingen direkt eller indirekt rutt hittades."
+            return "No direct or connecting route found."
     except Exception as e:
-        return f"Fel: {str(e)}"
+        return f"Error: {str(e)}"
